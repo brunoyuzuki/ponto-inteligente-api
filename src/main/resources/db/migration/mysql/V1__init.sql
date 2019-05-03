@@ -1,4 +1,3 @@
-
 CREATE TABLE empresa(
 	id bigint(20) NOT NULL,
 	cnpj varchar(255) NOT NULL,
