@@ -6,7 +6,8 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.kazale.pontointeligente.api.security.enums.PerfilEnum;
+import com.kazale.pontointeligente.api.entities.Funcionario;
+import com.kazale.pontointeligente.api.enums.PerfilEnum;
 
 public class JwtUserFactory {
 
@@ -19,7 +20,7 @@ public class JwtUserFactory {
 	 * @param usuario
 	 * @return JwtUser
 	 */
-	public static JwtUser create(com.kazale.pontointeligente.api.security.entities.Usuario funcionario) {
+	public static JwtUser create(Funcionario funcionario) {
 		return new JwtUser(funcionario.getId(), funcionario.getEmail(), funcionario.getSenha(),
 				mapToGrantedAuthorities(funcionario.getPerfil()));
 	}

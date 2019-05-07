@@ -3,7 +3,7 @@ package com.kazale.pontointeligente.api.security.dto;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation" })
 public class JwtAuthenticationDto {
 
 	private String email;
