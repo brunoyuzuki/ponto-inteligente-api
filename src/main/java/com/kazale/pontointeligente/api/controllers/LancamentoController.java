@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -110,7 +111,8 @@ public class LancamentoController {
 	 * @return ResponseEntity<Response<LancamentoDto>>
 	 * @throws ParseException
 	 */
-	@PostMapping(value = "/{id}")
+	
+	@PostMapping
 	public ResponseEntity<Response<LancamentoDto>> adicionar(@Valid @RequestBody LancamentoDto lancamentoDto,
 			BindingResult result) throws ParseException {
 		log.info("Adicionando lançamento: {}", lancamentoDto.toString());
@@ -130,24 +132,6 @@ public class LancamentoController {
 		response.setData(this.converterLancamentoDto(lancamento));
 		return ResponseEntity.ok(response);
 	}	
-	
-	/**
-	 * Converte uma entidade lançamento para seu respectivo DTO.
-	 * 
-	 * @param lancamento
-	 * @return LancamentoDto
-	 */
-	private LancamentoDto converterLancamentoDto(Lancamento lancamento) {
-		LancamentoDto lancamentoDto = new LancamentoDto();
-		lancamentoDto.setId(Optional.of(lancamento.getId()));
-		lancamentoDto.setData(this.dateFormat.format(lancamento.getData()));
-		lancamentoDto.setTipo(lancamento.getTipo().toString());
-		lancamentoDto.setDescricao(lancamento.getDescricao());
-		lancamentoDto.setLocalizacao(lancamento.getLocalizacao());
-		lancamentoDto.setFuncionarioId(lancamento.getFuncionario().getId());
-		
-		return lancamentoDto;		
-	}
 	
 	/**
 	 * Atualiza os dados de um lançamento.
@@ -184,7 +168,8 @@ public class LancamentoController {
 	 *@param id
 	   *@return ResponseEntity<Response<Lancamento>> 
 	 */
-	@DeleteMapping(value = "{id}")
+	@DeleteMapping(value = "/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	public ResponseEntity<Response<String>> remover(@PathVariable("id") Long id) {
 		log.info("Removendo lançamento: {}", id);
 		Response<String> response = new Response<String>();
@@ -211,11 +196,29 @@ public class LancamentoController {
 			return;
 		}
 		
-		log.info("Validando funcionário id: {}", lancamentoDto.getFuncionarioId());
-		Optional<Funcionario> funcionario =this.funcionarioService.buscarPorId(lancamentoDto.getFuncionarioId());
+		log.info("Validando funcionário id {}: ", lancamentoDto.getFuncionarioId());
+		Optional<Funcionario> funcionario = this.funcionarioService.buscarPorId(lancamentoDto.getFuncionarioId());
 		if(!funcionario.isPresent()) {
-			result.addError(new ObjectError("funcionario", "Funcionário não encontrado. ID inexistente"));
+			result.addError(new ObjectError("funcionario", "Funcionário não encontrado. ID inexistente."));
 		}
+	}
+	
+	/**
+	 * Converte uma entidade lançamento para seu respectivo DTO.
+	 * 
+	 * @param lancamento
+	 * @return LancamentoDto
+	 */
+	private LancamentoDto converterLancamentoDto(Lancamento lancamento) {
+		LancamentoDto lancamentoDto = new LancamentoDto();
+		lancamentoDto.setId(Optional.of(lancamento.getId()));
+		lancamentoDto.setData(this.dateFormat.format(lancamento.getData()));
+		lancamentoDto.setTipo(lancamento.getTipo().toString());
+		lancamentoDto.setDescricao(lancamento.getDescricao());
+		lancamentoDto.setLocalizacao(lancamento.getLocalizacao());
+		lancamentoDto.setFuncionarioId(lancamento.getFuncionario().getId());
+		
+		return lancamentoDto;		
 	}
 
 	/**
@@ -234,7 +237,7 @@ public class LancamentoController {
 			if(lanc.isPresent()) {
 				lancamento = lanc.get();
 			} else {
-				result.addError(new ObjectError("lancamento", "Lançamento não encontrado"));
+				result.addError(new ObjectError("lancamento", "Lançamento não encontrado."));
 			}
 		} else {
 			lancamento.setFuncionario(new Funcionario());
@@ -248,7 +251,7 @@ public class LancamentoController {
 		if (EnumUtils.isValidEnum(TipoEnum.class, lancamentoDto.getTipo())) {
 			lancamento.setTipo(TipoEnum.valueOf(lancamentoDto.getTipo()));
 		} else {
-			result.addError(new ObjectError("tipo", "Tipo inválido"));
+			result.addError(new ObjectError("tipo", "Tipo inválido."));
 		}
 		
 		return lancamento;

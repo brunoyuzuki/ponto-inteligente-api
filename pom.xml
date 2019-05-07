@@ -108,12 +108,12 @@
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
 		
-		<!-- JWT Token
+		<!-- JWT Token -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>
-		</dependency> -->
-		
+			<version>0.7.0</version>
+		</dependency>
 		
 	</dependencies>
 
